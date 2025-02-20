@@ -1,15 +1,15 @@
 ;; Blacklist Manager Contract
 
 ;; Error Codes
-(define-constant ERR-UNAUTHORIZED-ACCESS (err u100))
-(define-constant ERR-ADDRESS-ALREADY-BLACKLISTED (err u101))
-(define-constant ERR-ADDRESS-NOT-BLACKLISTED (err u102))
-(define-constant ERR-INVALID-INPUT-PARAMETER (err u103))
-(define-constant ERR-BULK-OPERATION-FAILED (err u104))
-(define-constant ERR-ADMIN-PERMISSION-REQUIRED (err u105))
-(define-constant ERR-CANNOT-BLACKLIST-ADMINISTRATOR (err u106))
-(define-constant ERR-INVALID-TIMESTAMP (err u107))
-(define-constant ERR-BLACKLIST-PERIOD-EXPIRED (err u108))
+(define-constant ERR_UNAUTHORIZED_ACCESS (err u100))
+(define-constant ERR_ADDRESS_ALREADY_BLACKLISTED (err u101))
+(define-constant ERR_ADDRESS_NOT_BLACKLISTED (err u102))
+(define-constant ERR_INVALID_INPUT_PARAMETER (err u103))
+(define-constant ERR_BULK_OPERATION_FAILED (err u104))
+(define-constant ERR_ADMIN_PERMISSION_REQUIRED (err u105))
+(define-constant ERR_CANNOT_BLACKLIST_ADMINISTRATOR (err u106))
+(define-constant ERR_INVALID_TIMESTAMP (err u107))
+(define-constant ERR_BLACKLIST_PERIOD_EXPIRED (err u108))
 
 ;; Data Variables
 (define-data-var primary-contract-administrator principal tx-sender)
@@ -77,31 +77,31 @@
 ;; Public Functions
 (define-public (update-primary-administrator (new-primary-admin principal))
   (begin 
-    (asserts! (is-eq tx-sender (var-get primary-contract-administrator)) ERR-UNAUTHORIZED-ACCESS)
-    (asserts! (not (is-eq new-primary-admin (var-get primary-contract-administrator))) ERR-INVALID-INPUT-PARAMETER)
+    (asserts! (is-eq tx-sender (var-get primary-contract-administrator)) ERR_UNAUTHORIZED_ACCESS)
+    (asserts! (not (is-eq new-primary-admin (var-get primary-contract-administrator))) ERR_INVALID_INPUT_PARAMETER)
     (var-set primary-contract-administrator new-primary-admin)
     (map-set administrator-registry new-primary-admin true)
     (ok true)))
 
 (define-public (update-secondary-administrator (new-secondary-admin principal))
   (begin 
-    (asserts! (is-eq tx-sender (var-get primary-contract-administrator)) ERR-UNAUTHORIZED-ACCESS)
-    (asserts! (not (is-eq new-secondary-admin (var-get secondary-contract-administrator))) ERR-INVALID-INPUT-PARAMETER)
+    (asserts! (is-eq tx-sender (var-get primary-contract-administrator)) ERR_UNAUTHORIZED_ACCESS)
+    (asserts! (not (is-eq new-secondary-admin (var-get secondary-contract-administrator))) ERR_INVALID_INPUT_PARAMETER)
     (var-set secondary-contract-administrator new-secondary-admin)
     (map-set administrator-registry new-secondary-admin true)
     (ok true)))
 
 (define-public (register-administrator (admin-address principal))
   (begin 
-    (asserts! (verify-authorization) ERR-UNAUTHORIZED-ACCESS)
-    (asserts! (not (check-administrator-status admin-address)) ERR-ADDRESS-ALREADY-BLACKLISTED)
+    (asserts! (verify-authorization) ERR_UNAUTHORIZED_ACCESS)
+    (asserts! (not (check-administrator-status admin-address)) ERR_ADDRESS_ALREADY_BLACKLISTED)
     (map-set administrator-registry admin-address true)
     (ok true)))
 
 (define-public (deregister-administrator (admin-address principal))
   (begin 
-    (asserts! (verify-authorization) ERR-UNAUTHORIZED-ACCESS)
-    (asserts! (not (is-eq admin-address (var-get primary-contract-administrator))) ERR-UNAUTHORIZED-ACCESS)
+    (asserts! (verify-authorization) ERR_UNAUTHORIZED_ACCESS)
+    (asserts! (not (is-eq admin-address (var-get primary-contract-administrator))) ERR_UNAUTHORIZED_ACCESS)
     (map-delete administrator-registry admin-address)
     (ok true)))
 
@@ -111,13 +111,13 @@
     (restriction-level uint)
     (duration-blocks (optional uint)))
   (begin 
-    (asserts! (verify-authorization) ERR-UNAUTHORIZED-ACCESS)
-    (asserts! (not (check-administrator-status target-address)) ERR-CANNOT-BLACKLIST-ADMINISTRATOR)
-    (asserts! (not (check-address-blacklist-status target-address)) ERR-ADDRESS-ALREADY-BLACKLISTED)
-    (asserts! (> (len blacklist-reason) u0) ERR-INVALID-INPUT-PARAMETER)
-    (asserts! (and (>= restriction-level u1) (<= restriction-level u10)) ERR-INVALID-INPUT-PARAMETER)
+    (asserts! (verify-authorization) ERR_UNAUTHORIZED_ACCESS)
+    (asserts! (not (check-administrator-status target-address)) ERR_CANNOT_BLACKLIST_ADMINISTRATOR)
+    (asserts! (not (check-address-blacklist-status target-address)) ERR_ADDRESS_ALREADY_BLACKLISTED)
+    (asserts! (> (len blacklist-reason) u0) ERR_INVALID_INPUT_PARAMETER)
+    (asserts! (and (>= restriction-level u1) (<= restriction-level u10)) ERR_INVALID_INPUT_PARAMETER)
     (let ((calculated-end-time (calculate-blacklist-duration duration-blocks)))
-      (asserts! (> calculated-end-time block-height) ERR-INVALID-TIMESTAMP)
+      (asserts! (> calculated-end-time block-height) ERR_INVALID_TIMESTAMP)
       (map-set blacklist-registry target-address 
         {
           is-blacklisted: true,
@@ -132,8 +132,8 @@
 
 (define-public (remove-from-blacklist (target-address principal))
   (begin 
-    (asserts! (verify-authorization) ERR-UNAUTHORIZED-ACCESS)
-    (asserts! (check-address-blacklist-status target-address) ERR-ADDRESS-NOT-BLACKLISTED)
+    (asserts! (verify-authorization) ERR_UNAUTHORIZED_ACCESS)
+    (asserts! (check-address-blacklist-status target-address) ERR_ADDRESS_NOT_BLACKLISTED)
     (map-delete blacklist-registry target-address)
     (map-delete blacklist-justifications target-address)
     (var-set total-blacklisted-addresses (- (var-get total-blacklisted-addresses) u1))
@@ -142,8 +142,8 @@
 
 (define-public (submit-removal-request (removal-reason (string-utf8 500)))
   (begin
-    (asserts! (check-address-blacklist-status tx-sender) ERR-ADDRESS-NOT-BLACKLISTED)
-    (asserts! (> (len removal-reason) u0) ERR-INVALID-INPUT-PARAMETER)
+    (asserts! (check-address-blacklist-status tx-sender) ERR_ADDRESS_NOT_BLACKLISTED)
+    (asserts! (> (len removal-reason) u0) ERR_INVALID_INPUT_PARAMETER)
     (map-set blacklist-removal-requests tx-sender
       {
         request-status: u"pending",
@@ -154,9 +154,9 @@
 
 (define-public (review-removal-request (target-address principal) (request-approved bool))
   (begin
-    (asserts! (verify-authorization) ERR-UNAUTHORIZED-ACCESS)
-    (asserts! (check-address-blacklist-status target-address) ERR-ADDRESS-NOT-BLACKLISTED)
-    (let ((request-data (unwrap! (map-get? blacklist-removal-requests target-address) ERR-ADDRESS-NOT-BLACKLISTED)))
+    (asserts! (verify-authorization) ERR_UNAUTHORIZED_ACCESS)
+    (asserts! (check-address-blacklist-status target-address) ERR_ADDRESS_NOT_BLACKLISTED)
+    (let ((request-data (unwrap! (map-get? blacklist-removal-requests target-address) ERR_ADDRESS_NOT_BLACKLISTED)))
       (map-set blacklist-removal-requests target-address
         (merge request-data { request-status: (if request-approved u"approved" u"rejected") }))
       (if request-approved 
@@ -165,22 +165,22 @@
 
 (define-public (toggle-contract-operations)
   (begin
-    (asserts! (verify-authorization) ERR-UNAUTHORIZED-ACCESS)
+    (asserts! (verify-authorization) ERR_UNAUTHORIZED_ACCESS)
     (var-set contract-operational-status (not (var-get contract-operational-status)))
     (ok true)))
 
 (define-public (update-blacklist-duration (target-address principal) (new-end-time uint))
   (begin
-    (asserts! (verify-authorization) ERR-UNAUTHORIZED-ACCESS)
-    (asserts! (> new-end-time block-height) ERR-INVALID-TIMESTAMP)
-    (asserts! (check-address-blacklist-status target-address) ERR-ADDRESS-NOT-BLACKLISTED)
+    (asserts! (verify-authorization) ERR_UNAUTHORIZED_ACCESS)
+    (asserts! (> new-end-time block-height) ERR_INVALID_TIMESTAMP)
+    (asserts! (check-address-blacklist-status target-address) ERR_ADDRESS_NOT_BLACKLISTED)
     (match (map-get? blacklist-registry target-address)
       entry (begin
               (map-set blacklist-registry target-address
                 (merge entry { blacklist-end-time: new-end-time }))
               (ok true))
-      ERR-ADDRESS-NOT-BLACKLISTED)))
+      ERR_ADDRESS_NOT_BLACKLISTED)))
 
 ;; Prevent STX transfer to the contract
 (define-public (receive-stx)
-  (err ERR-INVALID-INPUT-PARAMETER))
+  (err ERR_INVALID_INPUT_PARAMETER))

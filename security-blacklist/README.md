@@ -17,15 +17,15 @@ The Blacklist Manager Smart Contract is a Clarity-based contract designed to mai
 - Regular Administrators
 
 ## Error Codes
-- `ERR-UNAUTHORIZED-ACCESS (u100)`: Access denied due to insufficient permissions
-- `ERR-ADDRESS-ALREADY-BLACKLISTED (u101)`: Address is already on the blacklist
-- `ERR-ADDRESS-NOT-BLACKLISTED (u102)`: Address is not found on the blacklist
-- `ERR-INVALID-INPUT-PARAMETER (u103)`: Invalid input parameters provided
-- `ERR-BULK-OPERATION-FAILED (u104)`: Bulk operation execution failed
-- `ERR-ADMIN-PERMISSION-REQUIRED (u105)`: Administrator permissions required
-- `ERR-CANNOT-BLACKLIST-ADMINISTRATOR (u106)`: Cannot blacklist an administrator
-- `ERR-INVALID-TIMESTAMP (u107)`: Invalid timestamp provided
-- `ERR-BLACKLIST-PERIOD-EXPIRED (u108)`: Blacklist period has expired
+- `ERR_UNAUTHORIZED_ACCESS (u100)`: Access denied due to insufficient permissions
+- `ERR_ADDRESS_ALREADY_BLACKLISTED (u101)`: Address is already on the blacklist
+- `ERR_ADDRESS_NOT_BLACKLISTED (u102)`: Address is not found on the blacklist
+- `ERR_INVALID_INPUT_PARAMETER (u103)`: Invalid input parameters provided
+- `ERR_BULK_OPERATION_FAILED (u104)`: Bulk operation execution failed
+- `ERR_ADMIN_PERMISSION_REQUIRED (u105)`: Administrator permissions required
+- `ERR_CANNOT_BLACKLIST_ADMINISTRATOR (u106)`: Cannot blacklist an administrator
+- `ERR_INVALID_TIMESTAMP (u107)`: Invalid timestamp provided
+- `ERR_BLACKLIST_PERIOD_EXPIRED (u108)`: Blacklist period has expired
 
 ## Main Functions
 
@@ -94,6 +94,11 @@ The Blacklist Manager Smart Contract is a Clarity-based contract designed to mai
 - Stacks blockchain compatibility
 - Clarity smart contract language
 - Principal address format for all addresses
+
+## Code Conventions
+- Error constants follow SCREAMING_SNAKE_CASE format (e.g., ERR_UNAUTHORIZED_ACCESS)
+- Variables and function names use kebab-case
+- Maps and storage variables follow clarity naming conventions
 
 ## Limitations
 - Fixed restriction severity range (1-10)
